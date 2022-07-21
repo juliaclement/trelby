@@ -1261,6 +1261,12 @@ class MyCtrl(wx.Control):
     def cmdTabPrev(self, cs):
         self.sp.toPrevTypeTabCmd(cs)
 
+    def cmdWordLeft(self, cs):
+        self.sp.wordLeftCmd(cs)
+
+    def cmdWordRight(self, cs):
+        self.sp.wordRightCmd(cs)
+
     def cmdSpeedTest(self, cs):
         import undo
         self.speedTestUndo = []
@@ -1343,11 +1349,11 @@ class MyCtrl(wx.Control):
             if addChar:
                 cs.char = chr(kc)
 
-                if opts.isTest and (cs.char == "å"):
+                if opts.isTest and (cs.char == "Ã¥"):
                     self.loadFile("sample.trelby")
-                elif opts.isTest and (cs.char == "¤"):
+                elif opts.isTest and (cs.char == "Â¤"):
                     self.cmdTest(cs)
-                elif opts.isTest and (cs.char == "½"):
+                elif opts.isTest and (cs.char == "Â½"):
                     self.cmdSpeedTest(cs)
                 else:
                     self.sp.addCharCmd(cs)

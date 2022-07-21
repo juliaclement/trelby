@@ -6,3 +6,5 @@
 .tox/
 MANIFEST
 .pybuild/
+log.txt
+trelby.code-workspace

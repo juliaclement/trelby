@@ -961,6 +961,15 @@ class ConfigGlobal:
 
             Command("Watermark", "Generate watermarked PDFs.",
                     isMenu = True),
+
+            Command("WordLeft", "Move word left.", 
+                   [util.Key(wx.WXK_LEFT, ctrl = True).toInt()],
+                   isMovement = True),
+
+            Command("WordRight", "Move word right.", 
+                   [util.Key(wx.WXK_RIGHT, ctrl = True).toInt()],
+                   isMovement = True),
+
             ]
 
         self.recalc()

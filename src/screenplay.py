@@ -2704,6 +2704,108 @@ Generated with <a href="http://www.trelby.org">Trelby</a>.</p>
             if self.line < (len(self.lines) - 1):
                 self.line += 1
                 self.column = 0
+    
+    def currentCharacter(self):
+        if self.lines == 0:
+            return ' '
+        else:
+            return self.lines[self.line].text[self.column]
+    
+    def priorCharacter(self):
+        if self.column == 0:
+            self.line -= 1
+            if self.line < 0:
+                raise IndexError("lines exhausted")
+            self.column = len(self.lines[self.line].text)-1
+        else:
+            self.column -= 1
+        return self.currentCharacter()
+        
+    def nextCharacter(self):
+        if self.column >= len(self.lines[self.line].text)-1:
+            self.line += 1
+            if self.line >= len(self.lines):
+                raise IndexError("lines exhausted")
+            self.column = 0
+        else:
+            self.column += 1
+        return self.currentCharacter()
+
+    def wordLeftCmd(self, cs):
+        self.maybeMark(cs.mark)
+        if len(self.lines) == 0:
+            return
+        startLine = self.line
+        try:
+            currentCharacter = self.currentCharacter()
+            if currentCharacter.isalnum():
+                # find character before current word, skipping white space
+                while currentCharacter.isalnum() and startLine == self.line:
+                    currentCharacter=self.priorCharacter()
+                while currentCharacter.isspace() and startLine == self.line:
+                    currentCharacter=self.priorCharacter()
+            elif not currentCharacter.isspace():
+                # find character before current group of characters
+                while startLine == self.line and not( currentCharacter.isalnum() or currentCharacter.isspace()) :
+                    currentCharacter=self.priorCharacter()
+            # find character before current spaces
+            while currentCharacter.isspace() and startLine == self.line:
+                currentCharacter=self.priorCharacter()
+            # we are now at the last character of the previous word, 
+            # or have overflowed to the end of the next line, which might be a space
+            # skip the spaces
+            if startLine != self.line:
+                while currentCharacter.isspace():
+                    currentCharacter=self.priorCharacter()
+                startLine = self.line
+            # find the start of the current word
+            # if we are somehow still on a space, give up
+            if currentCharacter.isalnum():
+                # find character before current word, skipping white space
+                while currentCharacter.isalnum() and startLine == self.line:
+                    currentCharacter=self.priorCharacter()
+                currentCharacter=self.nextCharacter()
+            elif not currentCharacter.isspace():
+                # find character before current group of characters
+                while startLine == self.line and not( currentCharacter.isalnum() or currentCharacter.isspace()) :
+                    currentCharacter=self.priorCharacter()
+                currentCharacter=self.nextCharacter()
+        except:
+            self.line = 0
+            self.column = 0
+
+    def wordRightCmd(self, cs):
+        self.maybeMark(cs.mark)
+        if len(self.lines) == 0:
+            return
+        startLine = self.line
+        try:
+            currentCharacter = self.currentCharacter()
+            # skip current word
+            if currentCharacter.isalpha():
+                while currentCharacter.isalpha() and startLine == self.line:
+                    currentCharacter=self.nextCharacter()
+            else:
+                while startLine == self.line and not ( currentCharacter.isalpha() or currentCharacter == ' '):
+                    currentCharacter=self.nextCharacter()
+            if currentCharacter.isalpha() or startLine != self.line:
+                return
+            # skip a single puctuation mark
+            if currentCharacter == ' ':
+                while currentCharacter == ' ' and startLine == self.line:
+                    currentCharacter = self.nextCharacter()
+                return
+            else:
+                currentCharacter=self.nextCharacter()
+                if currentCharacter != ' ' and not currentCharacter.isalpha():
+                    self.priorCharacter()
+                    return
+            while startLine == self.line and not currentCharacter.isalpha():
+                currentCharacter=self.nextCharacter()
+        except:
+            self.line = len(self.lines)-1
+            self.column = max(len(self.lines[self.line].text)-1, 0)
+            return
 
     def moveUpCmd(self, cs):
         if not self.acItems:
